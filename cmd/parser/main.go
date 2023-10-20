@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/csv"
-	"github.com/gocolly/colly"
 	"os"
 
+	"github.com/gocolly/colly"
 	"github.com/sirupsen/logrus"
 )
 
@@ -50,7 +50,13 @@ func main() {
 	if err != nil {
 		logger.Warningf("os.Create: %s", err)
 	}
-	defer file.Close()
+
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			logger.Infof("file.Close: %s", err)
+		}
+	}(file)
 
 	writer := csv.NewWriter(file)
 
@@ -85,5 +91,6 @@ func main() {
 			logger.Warningf("writer.Write(record): %s", err)
 		}
 	}
+
 	defer writer.Flush()
 }
